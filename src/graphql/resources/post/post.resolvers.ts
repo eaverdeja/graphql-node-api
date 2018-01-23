@@ -55,7 +55,7 @@ export const postResolvers = {
 
         updatePost: (parent, {id, input}, {db}: {db: DbConnection}, info: GraphQLResolveInfo) => {
             id = parseInt(id)
-            db.sequelize.transaction((t: Transaction) => {
+            return db.sequelize.transaction((t: Transaction) => {
                 return db.Post
                     .findById(id)
                     .then((post: PostInstance) => {

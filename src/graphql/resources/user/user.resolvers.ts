@@ -49,7 +49,7 @@ export const userResolvers = {
 
         updateUser: (parent, {id, input}, {db}: {db: DbConnection}, info: GraphQLResolveInfo) => {
             id = parseInt(id)
-            db.sequelize.transaction((t: Transaction) => {
+            return db.sequelize.transaction((t: Transaction) => {
                 return db.User
                     .findById(id)
                     .then((user: UserInstance) => {
@@ -61,7 +61,7 @@ export const userResolvers = {
 
         updateUserPassword: (parent, {id, input}, {db}: {db: DbConnection}, info: GraphQLResolveInfo) => {
             id = parseInt(id)
-            db.sequelize.transaction((t: Transaction) => {
+            return db.sequelize.transaction((t: Transaction) => {
                 return db.User
                     .findById(id)
                     .then((user: UserInstance) => {

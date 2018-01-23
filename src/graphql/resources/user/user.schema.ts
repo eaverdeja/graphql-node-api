@@ -1,6 +1,9 @@
 const userTypes = `
+    #Um comentário!
     type User {
+        #Um id
         id: ID!
+        #Um nome
         name: String!
         email: String!
         photo: String

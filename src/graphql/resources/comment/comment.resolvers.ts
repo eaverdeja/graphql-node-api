@@ -42,7 +42,7 @@ export const commentResolvers = {
 
         updateComment: (parent, {id, input}, {db}: {db: DbConnection}, info: GraphQLResolveInfo) => {
             id = parseInt(id)
-            db.sequelize.transaction((t: Transaction) => {
+            return db.sequelize.transaction((t: Transaction) => {
                 return db.Comment
                     .findById(id)
                     .then((comment: CommentInstance) => {
