@@ -5,13 +5,12 @@ import { JWT_SECRET } from '../../../utils/utils';
 
 export const tokenResolvers = {
     Mutation: {
-        createToken: (parent, { email, password }, {db}: {db: DbConnection}) => {
+        createToken: (parent, { email, password }, {db, user}: {db: DbConnection, user: UserInstance}) => {
             return db.User.findOne({
                 where: {email: email},
                 attributes: ['id', 'password']
             }).then((user: UserInstance) => {
                 let errorMessage: string = "Unathorized, wrong email or password"
-                console.log('resolving!')
                 if(!user || !user.isPassword(user.get('password'), password)) {
                     throw new Error(errorMessage)
                 }
@@ -20,7 +19,7 @@ export const tokenResolvers = {
                 let r = {
                     token: jwt.sign(payload, JWT_SECRET)
                 }
-                console.log(r)
+
                 return r
             })
         }
