@@ -1,4 +1,5 @@
 import { GraphQLResolveInfo } from "graphql";
+import * as Bluebird from "bluebird";
 import { DbConnection } from "../../../interfaces/DbConnectionInterface";
 import { UserInstance } from "../../../models/UserModel";
 import { Transaction } from "sequelize";
@@ -9,31 +10,36 @@ import { verifyTokenResolver } from "../../composable/verify-token.resolver";
 import { AuthUser } from "../../../interfaces/AuthUserInterface";
 
 /**
- * A mutateUsers protege resolvers específicos ao delegar a
+ * Consulta o banco de dados pelo usuário com o ID especificado
+ * 
+ * @param db A instância de conexão com o banco de dados
+ * @param id O ID do usuário
+ */
+const findUser = (db: DbConnection, id) => {
+    id = parseInt(id)
+    return db.User
+        .findById(id)
+        .then((user: UserInstance) => {
+            throwError(!user, `User with id ${id} not found`)
+            return user
+        }).catch(handleError)
+}
+
+/**
+ * A mutateUser protege resolvers específicos ao delegar a
  * a mutação específica para o callback UserAction fornecedido como parâmetro.
  * Antes de delegar para a mutação com os parâmetros necessários,
  * a função compõe os resolvers responsáveis pela autenticação da API,
  * abre uma transação no banco de dados e lança um erro caso o usuário
  * autenticado não tenha sido encontrado
-
- * mutateUsers protects specific resolvers by delegating the
- * specific mutation to the UserAction callback supplied as a parameter
- * Before delegating to the mutation with the necessary parameters,
- * the function composes os resolvers responsible for the API authentication,
- * opens up a DB transaction and throws and error if the
- * authenticated user wansn't found
  */
 type UserAction = (t: Transaction, user: UserInstance, input?) => any
 
 const mutateUser = (action: UserAction): any => {
     return compose(...authResolvers)((parent, {input}, { db, authUser }: {db: DbConnection, authUser: AuthUser }, info: GraphQLResolveInfo) => {
         return db.sequelize.transaction((t: Transaction) => {
-            return db.User
-                .findById(authUser.id)
-                .then((user: UserInstance) => {
-                    throwError(!user, `User with id ${authUser.id} not found`)
-                    return action(t, user, input)
-                })
+            return findUser(db, authUser.id)
+                .then((user: UserInstance) => action(t, user, input))
         }).catch(handleError)
     })
 }
@@ -61,25 +67,15 @@ export const userResolvers = {
                 .catch(handleError)
         },
 
-        user: (parent, {id}, {db}: {db: DbConnection}, info: GraphQLResolveInfo) => {
-            id = parseInt(id)
-            return db.User
-                .findById(id)
-                .then((user: UserInstance) => {
-                    if(!user) throw new Error(`User with id ${id} not found`)
-                    return user
-                })
-                .catch(handleError)
-        },
+        user: (parent, {id}, {db}: {db: DbConnection}, info: GraphQLResolveInfo) =>
+            findUser(db, id)
+        ,
 
-        currentUser: compose(...authResolvers)((parent, {input}, { db, authUser }: {db: DbConnection, authUser: AuthUser }, info: GraphQLResolveInfo) => {
-            return db.User
-                .findById(authUser.id)
-                .then((user: UserInstance) => {
-                    throwError(!user, `User with id ${authUser.id} not found`)
-                    return user
-                }).catch(handleError)
-        })
+        currentUser: compose(...authResolvers)(
+            (parent, {input}, { db, authUser }: {db: DbConnection, authUser: AuthUser }, info: GraphQLResolveInfo) =>
+                findUser(db, authUser.id)
+                    .then((user: UserInstance) => user )
+        )
     },
 
     Mutation: {
