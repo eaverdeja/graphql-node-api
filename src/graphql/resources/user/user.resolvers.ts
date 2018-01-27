@@ -70,7 +70,16 @@ export const userResolvers = {
                     return user
                 })
                 .catch(handleError)
-        }
+        },
+
+        currentUser: compose(...authResolvers)((parent, {input}, { db, authUser }: {db: DbConnection, authUser: AuthUser }, info: GraphQLResolveInfo) => {
+            return db.User
+                .findById(authUser.id)
+                .then((user: UserInstance) => {
+                    throwError(!user, `User with id ${authUser.id} not found`)
+                    return user
+                }).catch(handleError)
+        })
     },
 
     Mutation: {
