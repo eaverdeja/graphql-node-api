@@ -6,7 +6,7 @@ export type ComposableResolver<TSource, TContext> =
 export function compose<TSource, TContext>(
     ...funcs: Array<ComposableResolver<TSource, TContext>>
 ): ComposableResolver<TSource, TContext> {
-    console.log(funcs[0])
+    
     if(funcs.length === 0) {
         //if no functions, return the identity
         return o => o
@@ -22,7 +22,6 @@ export function compose<TSource, TContext>(
         for(let index = funcs.length - 2; index >= 0; index--) {
             const fn = funcs[index]
             result = fn(result)
-            console.log(fn, result)
         }
         return result
     }
