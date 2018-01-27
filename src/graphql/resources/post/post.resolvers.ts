@@ -13,7 +13,7 @@ import { AuthUser } from "../../../interfaces/AuthUserInterface";
  * @param db A instância de conexão com o banco de dados
  * @param id O ID do post
  */
-const findPost = (db: DbConnection, id) => {
+const findPost = (db: DbConnection, id, authUser: AuthUser) => {
     id = parseInt(id)
     return db.Post
         .findById(id)
@@ -30,10 +30,10 @@ type PostAction = (t: Transaction, post: PostInstance, input?, db?: DbConnection
 const mutatePost = (action: PostAction): any => {
     return compose(...authResolvers)((parent, { id, input }, { db, authUser }: {db: DbConnection, authUser: AuthUser }, info: GraphQLResolveInfo) => {
         return db.sequelize.transaction((t: Transaction) => {
-            //Inserindo o autor no input
+            //Inserindo o usuário autenticado como autor no input
             if(input) input.author = authUser.id
 
-            return findPost(db, id)
+            return findPost(db, id, authUser)
                 .then( (post: PostInstance) => action(t, post, input, db) )
         }).catch(handleError)
     })
@@ -68,8 +68,8 @@ export const postResolvers = {
                 .catch(handleError)
         },
 
-        post: (parent, {id}, {db}: {db: DbConnection}, info: GraphQLResolveInfo) =>
-            findPost(db, id)
+        post: (parent, {id}, {db, authUser }: { db: DbConnection, authUser: AuthUser }, info: GraphQLResolveInfo) =>
+            findPost(db, id, authUser)
     },
 
     Mutation: {
