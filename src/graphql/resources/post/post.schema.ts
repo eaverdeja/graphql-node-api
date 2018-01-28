@@ -1,7 +1,5 @@
 const postTypes = `
 
-    # Muitas palavras, uma ideia
-    # Uma foto pode ajudar a instigar a curiosidade
     type Post {
         id: ID!
         title: String!

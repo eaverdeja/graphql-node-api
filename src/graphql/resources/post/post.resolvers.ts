@@ -19,7 +19,6 @@ const findPost = (db: DbConnection, id, authUser: AuthUser) => {
         .findById(id)
         .then((post: PostInstance) => {
             throwError(!post, `Post with id ${id} not found`)
-            throwError(post.get('author') != authUser.id, `Unathorized! You can only edit posts created by yourself!`)
 
             return post
         }).catch(handleError)
@@ -34,7 +33,12 @@ const mutatePost = (action: PostAction): any => {
             if(input) input.author = authUser.id
 
             return findPost(db, id, authUser)
-                .then( (post: PostInstance) => action(t, post, input, db) )
+                .then( (post: PostInstance) => {
+                    throwError(post.get('author') != authUser.id, `Unathorized! You can only edit posts created by yourself!`)
+    
+                    return action(t, post, input, db) 
+                })
+
         }).catch(handleError)
     })
 }
@@ -75,6 +79,7 @@ export const postResolvers = {
     Mutation: {
         createPost: (parent, {input}, { db , authUser }: {db: DbConnection, authUser: AuthUser}, info: GraphQLResolveInfo) => {
             input.author = authUser.id
+            console.log(authUser.id)
             return db.sequelize.transaction((t: Transaction) => {
                 return db.Post 
                     .create(input, {transaction: t})
