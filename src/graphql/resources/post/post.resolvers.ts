@@ -50,7 +50,7 @@ export const postResolvers = {
     Post: {
         author: (post, args, { db, dataloaders: {userLoader} }: { db: DbConnection, dataloaders: DataLoaders }, info: GraphQLResolveInfo) => {
             return userLoader
-                .load(post.get('author'))
+                .load({ key: post.get('author'), info })
                 .catch(handleError)
         },
 

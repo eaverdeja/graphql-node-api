@@ -49,13 +49,13 @@ export const commentResolvers = {
     Comment: {
         post: (comment, args, { db, dataloaders: {postLoader} }: { db: DbConnection, dataloaders: DataLoaders }, info: GraphQLResolveInfo) => {
             return postLoader
-                .load(comment.get('post'))
+                .load({ key: comment.get('post'), info })
                 .catch(handleError)
         },
 
         user: (comment, args, { db, dataloaders: {userLoader} }: { db: DbConnection, dataloaders: DataLoaders }, info: GraphQLResolveInfo) => {
             return userLoader
-                .load(comment.get('user'))
+                .load({ key: comment.get('author'), info })
                 .catch(handleError)
         }
     },
