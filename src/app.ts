@@ -5,12 +5,13 @@ import * as graphqlHTTTP from 'express-graphql';
 import { schema } from './graphql/schema'
 import db from './models'
 import { DataLoaderFactory } from './graphql/dataloaders/DataLoaderFactory';
+import { RequestedFields } from './graphql/ast/RequestedFields';
 
 class App {
 
     public express: express.Application
-
     private dataLoaderFactory: DataLoaderFactory
+    private requestedFields: RequestedFields
 
     constructor() {
         this.express = express()
@@ -20,6 +21,7 @@ class App {
     private init(): void {
         this.middleware()
         this.dataLoaderFactory = new DataLoaderFactory(db)
+        this.requestedFields = new RequestedFields()
     }
 
     private middleware(): void {
@@ -31,6 +33,8 @@ class App {
             (req, res, next) => {
                 req['context']['db'] = db
                 req['context']['dataloaders'] = this.dataLoaderFactory.getLoaders()
+                req['context']['requestedFields'] = this.requestedFields
+
                 next()
             },
 

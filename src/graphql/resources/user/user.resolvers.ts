@@ -1,24 +1,27 @@
 import { GraphQLResolveInfo } from "graphql";
 import * as Bluebird from "bluebird";
 import { DbConnection } from "../../../interfaces/DbConnectionInterface";
-import { UserInstance } from "../../../models/UserModel";
-import { Transaction } from "sequelize";
+import { UserInstance, UserAttributes } from "../../../models/UserModel";
+import { Transaction, FindOptions } from "sequelize";
 import { handleError, throwError } from "../../../utils/utils";
 import { compose } from "../../composable/composable.resolver";
 import { authResolver, authResolvers } from "../../composable/auth.resolver";
 import { verifyTokenResolver } from "../../composable/verify-token.resolver";
 import { AuthUser } from "../../../interfaces/AuthUserInterface";
+import { RequestedFields } from "../../ast/RequestedFields";
+import { ResolverContext } from "../../../interfaces/ResolverContextInterface";
 
 /**
  * Consulta o banco de dados pelo usuário com o ID especificado
  * 
  * @param db A instância de conexão com o banco de dados
  * @param id O ID do usuário
+ * @param options Um objeto de configurações para a consulta do sequelize
  */
-const findUser = (db: DbConnection, id) => {
+const findUser = (db: DbConnection, id, options: FindOptions<UserAttributes> = {}) => {
     id = parseInt(id)
     return db.User
-        .findById(id)
+        .findById(id, options)
         .then((user: UserInstance) => {
             throwError(!user, `User with id ${id} not found`)
             return user
@@ -46,35 +49,49 @@ const mutateUser = (action: UserAction): any => {
 
 export const userResolvers = {
     User: {
-        posts: (user, { first = 10, offset = 0 }, { db }: { db: DbConnection }, info: GraphQLResolveInfo) => {
-            return db.Post
+        posts: (user, { first = 10, offset = 0 }, context: ResolverContext, info: GraphQLResolveInfo) => {
+            return context.db.Post
                 .findAll({
                     where: {author: user.get('id')},
                     limit: first,
-                    offset: offset
+                    offset: offset,
+                    attributes: context.requestedFields.getFields(info, {keep: ['id'], exclude: ['posts']})
                 })
                 .catch(handleError)
         }
     },
 
     Query: {
-        users: (parent, { first = 10, offset = 0 }, { db }: { db: DbConnection }, info: GraphQLResolveInfo) => {
-            return db.User
+        users: (parent, { first = 10, offset = 0 }, context: ResolverContext, info: GraphQLResolveInfo) => {
+            return context.db.User
                 .findAll({
                     limit: first,
-                    offset: offset
+                    offset: offset,
+                    attributes: context.requestedFields.getFields(info, { keep: ['id'], exclude: ['posts'] })
                 })
                 .catch(handleError)
         },
 
-        user: (parent, {id}, {db}: {db: DbConnection}, info: GraphQLResolveInfo) =>
-            findUser(db, id)
+        user: (parent, {id}, context: ResolverContext, info: GraphQLResolveInfo) =>
+            findUser(context.db, id, {
+                attributes: context
+                    .requestedFields
+                    .getFields(info, {
+                        keep: ['id'], exclude: ['posts']
+                    })
+            })
         ,
 
         currentUser: compose(...authResolvers)(
-            (parent, {input}, { db, authUser }: {db: DbConnection, authUser: AuthUser }, info: GraphQLResolveInfo) =>
-                findUser(db, authUser.id)
-                    .then((user: UserInstance) => user )
+            (parent, args, context: ResolverContext, info: GraphQLResolveInfo) =>
+                findUser(context.db, context.authUser.id, {
+                    attributes: context
+                        .requestedFields
+                        .getFields(info, {
+                            keep: ['id'], exclude: ['posts']
+                        })
+                })
+                .then((user: UserInstance) => user )
         )
     },
 
