@@ -6,6 +6,7 @@ import { handleError, throwError } from "../../../utils/utils";
 import { compose } from "../../composable/composable.resolver";
 import { authResolvers } from "../../composable/auth.resolver";
 import { AuthUser } from "../../../interfaces/AuthUserInterface";
+import { DataLoaders } from "../../../interfaces/DataLoaderInterface";
 
 /**
  * Consulta o banco de dados pelo post com o ID especificado
@@ -45,9 +46,9 @@ const mutatePost = (action: PostAction): any => {
 
 export const postResolvers = {
     Post: {
-        author: (post, args, { db }: { db: DbConnection }, info: GraphQLResolveInfo) => {
-            return db.User
-                .findById(post.get('author'))
+        author: (post, args, { db, dataloaders: {userLoader} }: { db: DbConnection, dataloaders: DataLoaders }, info: GraphQLResolveInfo) => {
+            return userLoader
+                .load(post.get('author'))
                 .catch(handleError)
         },
 

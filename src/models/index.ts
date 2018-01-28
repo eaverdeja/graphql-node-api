@@ -13,11 +13,9 @@ let db = null
 if(!db) {
     db = {}
 
-    const operatorsAliases = {
+    config.operatorsAliases = {
         $in: Sequelize.Op.in
     }
-
-    config.operatorsAliases = Object.assign({ operatorsAliases }, config)
 
     const sequelize: Sequelize.Sequelize = new Sequelize(
         config.database,
