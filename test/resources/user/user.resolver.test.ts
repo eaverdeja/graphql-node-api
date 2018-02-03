@@ -43,7 +43,6 @@ describe('User', () => {
             describe('users', () => {
 
                 it('should return a list of Users', () => {
-
                     let body = {
                         query: `
                             query {
