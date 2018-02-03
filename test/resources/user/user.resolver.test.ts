@@ -1,8 +1,8 @@
 import * as jwt from 'jsonwebtoken'
 
-import { db, app, handleError, expect, chai } from "../test-utils";
-import { UserInstance } from "../../src/models/UserModel";
-import { JWT_SECRET } from '../../src/utils/utils';
+import { db, app, handleError, expect, chai } from "../../test-utils";
+import { UserInstance } from "../../../src/models/UserModel";
+import { JWT_SECRET } from '../../../src/utils/utils';
 
 describe('User', () => {
 
