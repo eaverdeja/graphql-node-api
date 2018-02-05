@@ -55,7 +55,7 @@ export const commentResolvers = {
 
         user: (comment, args, { db, dataloaders: {userLoader} }: { db: DbConnection, dataloaders: DataLoaders }, info: GraphQLResolveInfo) => {
             return userLoader
-                .load({ key: comment.get('author'), info })
+                .load({ key: comment.get('user'), info })
                 .catch(handleError)
         }
     },
