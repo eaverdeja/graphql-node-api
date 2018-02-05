@@ -277,6 +277,47 @@ describe('User', () => {
 
         })
 
+        describe('deleteUser', () => {
+        
+            it('should delete an existing User', () => {
+                let body = {
+                    query: `
+                        mutation {
+                            deleteUser
+                        }
+                    `
+                }
+
+                return chai.request(app)
+                    .post('/graphql')
+                    .set('content-type', 'application/json')
+                    .set('authorization', `Bearer ${token}`)
+                    .send(JSON.stringify(body))
+                    .then(res => {
+                        expect(res.body.data.deleteUser).to.be.true
+                    }).catch(handleError)
+            })
+
+            it('should block the operation if the token is not provided', () => {
+                let body = {
+                    query: `
+                        mutation {
+                            deleteUser
+                        }
+                    `
+                }
+
+                return chai.request(app)
+                    .post('/graphql')
+                    .set('content-type', 'application/json')
+                    .send(JSON.stringify(body))
+                    .then(res => {
+                        expect(res.body.errors[0].message).to.equal('Unathorized! Token not provided!')
+                    }).catch(handleError)
+            })
+            
+        })
+
     })
 
 })

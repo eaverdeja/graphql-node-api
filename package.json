@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "NODE_ENV=development JWT_SECRET=jazz_guitar node_modules/.bin/nodemon --delay 5 dist/index",
     "gulp": "node_modules/.bin/gulp",
-    "test": "NODE_ENV=test JWT_SECRET=jwt_test mocha"
+    "test": "NODE_ENV=test JWT_SECRET=jwt_test mocha",
+    "coverage": "nyc --extension .ts --include 'src/**/*.ts' --reporter html npm test"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +32,7 @@
     "gulp-typescript": "3.2.2",
     "mocha": "4.0.1",
     "nodemon": "1.12.0",
+    "nyc": "11.3.0",
     "ts-node": "3.3.0",
     "tslint": "^5.9.1",
     "typescript": "2.5.3"
@@ -46,6 +48,7 @@
     "jsonwebtoken": "8.1.0",
     "lodash": "4.17.4",
     "mysql2": "1.4.2",
-    "sequelize": "4.13.10"
+    "sequelize": "4.13.10",
+    "winston": "^2.4.0"
   }
 }
