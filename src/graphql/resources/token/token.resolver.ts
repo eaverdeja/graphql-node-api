@@ -2,10 +2,12 @@ import { DbConnection } from '../../../interfaces/DbConnectionInterface';
 import { UserInstance } from '../../../models/UserModel';
 import * as jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../../utils/utils';
+import { compose } from '../../composable/composable.resolver';
+import { queryLoggerResolver } from '../../composable/query-logger.resolver'
 
 export const tokenResolvers = {
     Mutation: {
-        createToken: (parent, { email, password }, {db, user}: {db: DbConnection, user: UserInstance}) => {
+        createToken: compose(queryLoggerResolver)((parent, { email, password }, {db, user}: {db: DbConnection, user: UserInstance}) => {
             return db.User.findOne({
                 where: {email: email},
                 attributes: ['id', 'password']
@@ -22,6 +24,6 @@ export const tokenResolvers = {
 
                 return r
             })
-        }
+        })
     }
 }
