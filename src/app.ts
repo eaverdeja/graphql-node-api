@@ -1,6 +1,7 @@
 import { extractJwtMiddleware } from './middlewares/extract-jwt.middleware';
 import * as express from 'express';
 import * as graphqlHTTTP from 'express-graphql';
+import * as cors from "cors";
 
 import { schema } from './graphql/schema'
 import db from './models'
@@ -25,6 +26,14 @@ class App {
     }
 
     private middleware(): void {
+
+        this.express.use(cors({
+            origin: '*',
+            methods: ['GET', 'POST'],
+            allowedHeaders: ['Content-Type', 'Authorization', 'Accept-Encoding'],
+            preflightContinue: false,
+            optionsSuccessStatus: 204
+        }))
 
         this.express.use('/graphql',
 
