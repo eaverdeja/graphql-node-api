@@ -10,6 +10,7 @@ export const queryLoggerResolver: ComposableResolver<any, ResolverContext> =
             //Configuramos o sequelize para utilizar nosso logger
             //na requisição atual
             db.sequelize.options.logging = (msg) => logger.info(msg)
+            db.customLog = true
             
             return resolver(parent, args, context, info)
         }

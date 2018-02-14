@@ -42,6 +42,7 @@ if(!db) {
     })
 
     db['sequelize'] = sequelize
+    db['customLog'] = false
 }
 
 export default <DbConnection>db

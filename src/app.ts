@@ -36,10 +36,15 @@ class App {
             },
 
             (req, res, next) => {
-                //Loggamos as queries do sequelize no console,
-                //a não ser que o config de ambiente diga o contrário
-                if(db.sequelize.options.logging !== false)
-                    db.sequelize.options.logging = (msg) => console.log(msg)
+                //Se o log do sequelize foi customizado
+                if(db.customLog) {
+                    //Em dev., resetamos ele para
+                    //a config. padrão (prints no console)
+                    if(process.env.NODE_ENV === 'development')
+                        db.sequelize.options.logging = (msg) => console.log(msg)
+                    //Caso contrário, desabilitamos o log
+                    else db.sequelize.options.logging = () => {}
+                }
 
                 next()
             },
