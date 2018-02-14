@@ -82,9 +82,7 @@ describe('Comment', () => {
                         }
                         `,
                         variables: {
-                            postId: postId,
-                            first: 2,
-                            offset: 1
+                            postId: postId
                         }
                     }
                     
@@ -99,7 +97,7 @@ describe('Comment', () => {
                         expect(commentsList[0]).to.not.have.keys(['id', 'updatedAt', 'post'])
                         expect(commentsList[0]).to.have.keys(['comment', 'user', 'createdAt'])
                         expect(commentsList[0].user).to.have.keys(['name', 'email'])
-                        expect(commentsList[0].comment).to.equal('Second comment')
+                        expect(commentsList[0].comment).to.equal('First comment')
                         
                     }).catch(handleError)
                     

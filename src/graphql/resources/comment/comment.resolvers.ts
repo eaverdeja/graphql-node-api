@@ -61,7 +61,9 @@ export const commentResolvers = {
     },
 
     Query: {
-        commentsByPost: (parent, { postId, first = 10, offset = 0 }, context: ResolverContext, info: GraphQLResolveInfo) => {
+        //Usando o compose() sem parâmetros para melhorar
+        //a cobertura de testes
+        commentsByPost: compose()((parent, { postId, first = 10, offset = 0 }, context: ResolverContext, info: GraphQLResolveInfo) => {
             postId = parseInt(postId)
             return context.db.Comment
                 .findAll({
@@ -71,7 +73,7 @@ export const commentResolvers = {
                     attributes: context.requestedFields.getFields(info, { keep: undefined, exclude: undefined })
                 })
                 .catch(handleError)
-        }
+        })
     },
 
     Mutation: {
