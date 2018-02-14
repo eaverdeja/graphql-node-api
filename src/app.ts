@@ -35,6 +35,15 @@ class App {
                 next()
             },
 
+            (req, res, next) => {
+                //Loggamos as queries do sequelize no console,
+                //a não ser que o config de ambiente diga o contrário
+                if(db.sequelize.options.logging !== false)
+                    db.sequelize.options.logging = (msg) => console.log(msg)
+
+                next()
+            },
+
             extractJwtMiddleware(),
 
             (req, res, next) => {
