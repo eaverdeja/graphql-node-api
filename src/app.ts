@@ -43,7 +43,7 @@ class App {
                     if(process.env.NODE_ENV === 'development')
                         db.sequelize.options.logging = (msg) => console.log(msg)
                     //Caso contrário, desabilitamos o log
-                    else db.sequelize.options.logging = () => {}
+                    else db.sequelize.options.logging = false
                 }
 
                 next()
