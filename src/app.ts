@@ -50,20 +50,6 @@ class App {
                 next()
             },
 
-            (req, res, next) => {
-                //Se o log do sequelize foi customizado
-                if(db.customLog) {
-                    //Em dev., resetamos ele para
-                    //a config. padrão (prints no console)
-                    if(process.env.NODE_ENV === 'development')
-                        db.sequelize.options.logging = (msg) => console.log(msg)
-                    //Caso contrário, desabilitamos o log
-                    else db.sequelize.options.logging = false
-                }
-
-                next()
-            },
-
             extractJwtMiddleware(),
 
             (req, res, next) => {
